@@ -1,12 +1,176 @@
-<!DOCTYPE html>
+
 <html>
 <head>
 	<title>Cache Simulator</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script>
 		function simulate() {
 		
 		}
+
+		$(document).ready(function(){
+			console.log("Hello, world!");
+
+			console.log(getBinaryAddress(99, 8));
+			console.log(getSetNumWord(99, 4, 2, 8));
+			console.log(getTagBits(99, 4, 2, 8));
+
+		});
+
+		//gets set number of given block in program flow
+		//Input: block number, number of sets
+		//Output: set number to be placed
+		function getSetNumBlock(blockNum, numOfSets){
+			return blockNum % numOfSets;
+		}
+
+		//gets set number of given address in program flow
+		//Input: address, words per block, number of set bits, MM bits
+		//Output: set number to be placed
+
+		function getSetNumWord(address, wordsPerBlock, setBits, MMbits){
+			let binaryAddress = getBinaryAddress(address, MMbits);
+			let blockBits = getBlockBits(wordsPerBlock);
+
+			let lastMMBit = MMbits - 1;
+			let firstSetBit = lastMMBit - blockBits;
+			let lastSetBit = firstSetBit - setBits + 1;
+
+			let binarySetNum = binaryAddress.splice(lastSetBit, setBits);
+
+			let setNumber = binaryToDecimal(binarySetNum, setBits);
+
+			return setNumber;
+		}
+
+		//gets tag bits of given address in program flow
+		//Input: address, words per block, number of set bits, MM bits
+		//Output: tag bits in a string
+		function getTagBits(address, wordsPerBlock, setBits, MMbits){
+			let binaryAddress = getBinaryAddress(address, MMbits);
+			let blockBits = getBlockBits(wordsPerBlock);
+
+			let tagLength = MMbits - setBits - blockBits;
+
+			let tagString = binaryAddress.splice(0, tagLength);
+			tagString = tagString.join('');
+
+
+			return tagString;
+		}
+
+		//converts binary to decimal
+		//Input: binary array, num of bits
+		//Output: decimal from binary
+		function binaryToDecimal(binary, numOfBits){
+			let decimal = 0;
+			let lastBit = numOfBits - 1;
+
+			for(let ctr = 0; ctr < numOfBits; ctr++){
+				let twoPower = Math.pow(2, ctr)
+
+				twoPower = twoPower * binary[lastBit - ctr];
+				decimal = decimal + twoPower;
+			}
+
+			return decimal;
+		}
+
+		//gets binary representation of address given address and num of MM bits
+		//Input: address, MMbits
+		//Output: binary representation of address (in array)
+		function getBinaryAddress(address, MMbits){
+			let binaryAddress = [];
+			let lastBit = MMbits - 1;
+
+			for(let ctr = 0; ctr < MMbits; ctr++){
+				binaryAddress.push(0);
+			}
+
+			for(let ctr = 0; ctr < MMbits; ctr++){
+				let twoPower = lastBit - ctr;
+				twoPower = Math.pow(2, twoPower);
+
+				if(address >= twoPower){
+					address = address - twoPower;
+					binaryAddress[ctr] = 1;
+				}
+			}
+
+			return binaryAddress;
+		}
+
+		//gets block bits given words per block
+		//Input: words per block
+		//Output: block bits
+		function getBlockBits(wordsPerBlock){
+			let ctr = 0;
+
+			while(true){
+				let twoPower = Math.pow(2, ctr);
+
+				if(twoPower >= wordsPerBlock){
+					return ctr;
+				}
+
+				ctr++;
+			}			
+		}
+
+
+		//Input: number of blocks per set
+		//Output: number of bits for set bits in memory address
+		function getSetBits(numOfBlocks){
+			let ctr = 0;
+
+			while(true){
+				let twoPower = Math.pow(2, ctr);
+
+				if(twoPower >= numOfBlocks){
+					return ctr;
+				}
+
+				ctr++;
+			}
+		}
+
+		//Gets number of bits for MM (given blocks)
+		//Input: number of blocks in MM, num of words per block
+		//Output: number of bits for MM
+		function getMMBitsBlocks(numOfBlocks, wordsPerBlock){
+			let numOfWords = numOfBlocks * wordsPerBlock;
+			let ctr = 0;
+
+			while(true){
+				let twoPower = Math.pow(2, ctr);
+
+				if(twoPower >= numOfWords){
+					return ctr;
+				}
+
+				ctr++;
+			}
+		}
+
+		//Gets number of bits for MM (given words)
+		//Input: number of words in MM
+		//Output: number of bits for MM
+		function getMMBitsWords(numOfWords){
+			let ctr = 0;
+
+			while(true){
+				let twoPower = Math.pow(2, ctr);
+
+				if(twoPower >= numOfWords){
+					return ctr;
+				}
+
+				ctr++;
+			}
+		}
+
 	</script>
+	<script src="main.js"></script>
 	<link rel="stylesheet" type="text/css" href="layout.css">
 </head>
 <body>
