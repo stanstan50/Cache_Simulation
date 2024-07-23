@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cache Simulator</title>
+	<script>
+		function simulate() {
+		
+		}
+	</script>
+	<link rel="stylesheet" type="text/css" href="layout.css">
+</head>
+<body>
+	<div class="body-parent">
+	<div class="left-side">
+		<div class="header-icon">
+			<img src="cachew.png" alt="icon">
+		</div>
+		<div class="header-title">
+			<h1>CACHE SIMULATOR</h1>
+			<h2>Block Set Associative, Least Recently Used</h2>
+			<hr>
+		</div>
+		<div class="input-area">
+			<div class="input-field block">
+				<label>Block Size</label>
+				<input type="number" name="blocksize" min="0"/>
+			</div>
+			<div class="input-field set">
+				<label>Set Size</label>
+				<input type="number" name="setsize" min="0"/>
+			</div>
+			<div class="input-field mm">
+				<label>MM Memory Size</label>
+				<input type="number" name="setsize" min="0"/>
+				<select name="mmtype">
+					<option value="blocks">Blocks</option>
+					<option value="words">Words</option>
+				</select>
+			</div>
+			<div class="input-field progflow">
+				<label>Program Flow</label>
+				<input type="text" name="progflow"/>
+				<select name="progflowtype">
+					<option value="blocks">Blocks</option>
+					<option value="words">Words</option>
+				</select>
+			</div>	
+		</div>
+		<div class="submitinput">
+			<input type="submit" value="Simulate" onclick="simulate()"/>
+		</div>
+		<hr>
+		<div class="simulresults">
+			<div class="simulresults-header">
+				<h1>SIMULATION RESULTS</h1>
+			</div>
+			<div class="simulresults-field">
+				<p>
+				Number of Cache Hits: <br>
+				Number of Cache Miss: <br>
+				Miss Penalty: <br>
+				Average Memory Access Time: <br>
+				Total Memory Access Time: <br>
+				</p>
+				
+			</div>
+		</div>
+	</div>
+	<div class="right-side">
+		<table>
+			<tr>
+				<th>Set</th>
+				<th>Block</th>
+				<th>Data</th>
+			<tr>
+			<tr>
+				<td rowspan="2">1</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td rowspan="2">2</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td rowspan="2">3</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+
+
+</body>
+</html>
