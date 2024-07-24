@@ -14,8 +14,7 @@
 			let MMSize = 1024; //words
 			let cacheSize = 16; //blocks
 			let blocksPerSet = 4; //
-			//let programFlow = [0, 1, 2, 3, 4, 5, 6, 7, 8]; //blocks
-			let programFlow = [1, 5, 1 ,9, 13, 17]; //blocks
+			let programFlow = [0, 1, 2, 3, 4, 5, 6, 7, 8]; //blocks
 			let wordsPerBlock = 4;
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
@@ -39,37 +38,12 @@
 				if(result == 1){//if cache hit
 					cache = updateFoundBlock(tagBits, setNum, cache);
 				} else {//if cache miss
-					cache = insertMissingBlock(tagBits, setNum, cache);
+					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
 				}
 
 			}
 
 			console.log(cache);
-
-			// let blockNum = 0;
-				
-
-			// 	let tagBits = getTagBits(blockNum, wordsPerBlock, setBits, MMbits, true);
-			// 	let setNum = getSetNumBlock(blockNum, numOfSets);
-
-			// 	let result = searchSet(tagBits, setNum, cache);
-
-
-				
-			// 	if(result == 1){//if cache hit
-			// 		cache = updateFoundBlock(tagBits, setNum, cache);
-			// 	} else {//if cache miss
-			// 		cache = insertMissingBlock(tagBits, setNum, cache);
-			// 	}
-
-
-			
-
-
-
-			// cache = [[["123", 1],["001",2],["134",4]],[["646", null],["263",1],["175",null]]];
-			// insertMissingBlock("qwe",1, cache);
-			// console.log(cache);
 
 		});
 
@@ -118,7 +92,7 @@
 				let set = [];
 
 				for(let i = 0; i < blocksPerSet; i++){
-					set.push([null, null]);
+					set.push([null, null, null]);
 				}
 
 				cache.push(set);
@@ -145,7 +119,7 @@
 
 		//inserts missing block in set
 		//input: tag bits string, set number in cache, cache array
-		function insertMissingBlock(tagBits, setNum, cache){
+		function insertMissingBlock(tagBits, setNum, cache, setBits){
 			let min = cache[setNum][0][1];
 			let max = 0;
 			let setSize = cache[setNum].length;
@@ -161,15 +135,13 @@
 			}
 
 
-			// console.log("min: " +  min);
-			// console.log("max: " + max);
-
-
 			for(let ctr = 0; ctr < setSize; ctr++){
 				let currentRecency = cache[setNum][ctr][1];
 				if(currentRecency == min || currentRecency == null){
 					cache[setNum][ctr][0] = tagBits;
 					cache[setNum][ctr][1] = max + 1;
+
+					cache[setNum][ctr][2] = convertTagToBlock(tagBits, setNum, setBits);
 				
 					return cache;
 				}
@@ -177,6 +149,17 @@
 
 
 
+		}
+
+		function convertTagToBlock(tagBits, setNum, setBits){
+			let binarySet = getBinaryAddress(setNum, setBits);
+			binarySet = binarySet.join("");
+			let block = tagBits + binarySet;
+
+			block = block.split('').map(Number);
+
+			block = binaryToDecimal(block, block.length);
+			return block;
 		}
 
 
@@ -214,13 +197,8 @@
 			}
 
 
-			// console.log("MM bits: " + MMbits);
-			// console.log("setBits: " + setBits);
-			// console.log("blockBits: " + blockBits);
-
 			let tagLength = MMbits - setBits - blockBits;
 
-			// console.log("tag length: " + tagLength);
 
 			let tagString = binaryAddress.splice(0, tagLength);
 			
