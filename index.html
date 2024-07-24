@@ -11,11 +11,47 @@
 		$(document).ready(function(){
 			console.log("Hello, world!");
 
-			console.log(getBinaryAddress(99, 8));
-			console.log(getSetNumWord(99, 4, 2, 8));
-			console.log(getTagBits(99, 4, 2, 8));
+			let MMSize = 1024; //words
+			let cacheSize = 16; //blocks
+			let blocksPerSet = 4; //
+			let programFlow = [0, 1, 2, 3, 4]; //blocks
+			let wordsPerBlock = 4;
+
+			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
+
+			let setBits = getSetBits(blocksPerSet);
+			let MMbits = getMMBitsWords(MMSize); //for MMSize is words
+
+		//for blocks program flow
+			for(let ctr = 0; ctr < programFlow.length; ctr++){
+				let blockNum = programFlow[ctr];
+				let numOfSets = cacheSize/blocksPerSet;
+
+				let tagBits = getTagBits(blockNum, wordsPerBlock, blocksPerSet, MMbits);
+				let setNum = getSetNumBlock(blockNum, numOfSets);
+
+				let result = searchSet(tagBits, setNum, cache);	//checks if found
+
+				if(result == 1){//if cache hit
+					updateFoundBlock(tagBits, setNum, cache);
+				} else {//if cache miss
+					insertMissingBlock(tagBits, setNum, cache);
+				}
+
+			}
+
+			// cache = [[["123", 1],["001",2],["134",4]],[["646", null],["263",1],["175",null]]];
+			// insertMissingBlock("qwe",1, cache);
+			// console.log(cache);
 
 		});
+
+		//gets cache size in blocks if user inputted words
+		//Input: cache size in words, block size
+		//Output: cache size in blocks
+		function getCacheSize(wordsSize, wordsPerBlock){
+			return wordsSize/wordsPerBlock;
+		}
 
 		//gets set number of given block in program flow
 		//Input: block number, number of sets
@@ -43,7 +79,94 @@
 			return setNumber;
 		}
 
-		//gets tag bits of given address in program flow
+		//Initializes 2d array for cache memory
+		//Input: cache size in blocks, blocksPerSet
+		//Output: 2d array for cache
+		function initializeCacheMemory(cacheSize, blocksPerSet){
+			let cache = [];
+			let numOfSets = cacheSize/blocksPerSet;
+
+			for(let ctr = 0; ctr < numOfSets; ctr++){
+				let set = [];
+
+				for(let i = 0; i < blocksPerSet; i++){
+					set.push([null, null]);
+				}
+
+				cache.push(set);
+			}
+
+			return cache;
+		}
+		
+		//checks if the block is in the set in cache
+		//Input: tag bits string, set number in cache, cache array
+		//Output: 1 if found, 0 if not
+		function searchSet(tagBits, setNum, cache){
+			let setSize = cache[setNum].length;
+
+			for(let ctr = 0; ctr < setSize; ctr++){
+				if(cache[setNum][ctr][0] === tagBits){
+					return 1;
+				}
+			}
+
+			return 0;
+		}
+
+		//inserts missing block in set
+		//input: tag bits string, set number in cache, cache array
+		function insertMissingBlock(tagBits, setNum, cache){
+			let min = cache[setNum][0][1];
+			let max = 0;
+			let setSize = cache[setNum].length;
+
+			for(let ctr = 0; ctr < setSize; ctr++){
+				let currentRecency = cache[setNum][ctr][1];
+				if(currentRecency < min){
+					min = currentRecency;
+				}
+				if(currentRecency > max){
+					max = currentRecency;
+				}
+			}
+
+
+			for(let ctr = 0; ctr < setSize; ctr++){
+				let currentRecency = cache[setNum][ctr][1];
+				if(currentRecency == min){
+					cache[setNum][ctr][0] = tagBits;
+					cache[setNum][ctr][1] = max + 1;
+					return;
+				}
+			}
+
+
+
+		}
+
+
+		//recency of tag bit is incremented from max recency value in set
+		//input: tagBit of found block, set number, cache array
+		function updateFoundBlock(tagBits, setNum, cache){
+			let setSize = cache[setNum].length;
+			let max = 0;
+
+			for(let ctr = 0; ctr < setSize; ctr++){
+				let currentRecency = cache[setNum][ctr][1];
+				if(currentRecency > max){
+					max = currentRecency;
+				}
+			}
+
+			for(let ctr = 0; ctr < setSize; ctr++){
+				if(cache[setNum][ctr][0] === tagBits){
+					cache[setNum][ctr][1] = max + 1;
+				}
+			}
+		}
+
+		//gets tag bits of given address or block in program flow
 		//Input: address, words per block, number of set bits, MM bits
 		//Output: tag bits in a string
 		function getTagBits(address, wordsPerBlock, setBits, MMbits){
