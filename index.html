@@ -14,31 +14,58 @@
 			let MMSize = 1024; //words
 			let cacheSize = 16; //blocks
 			let blocksPerSet = 4; //
-			let programFlow = [0, 1, 2, 3, 4]; //blocks
+			//let programFlow = [0, 1, 2, 3, 4, 5, 6, 7, 8]; //blocks
+			let programFlow = [1, 5, 1 ,9, 13, 17]; //blocks
 			let wordsPerBlock = 4;
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
 
 			let setBits = getSetBits(blocksPerSet);
 			let MMbits = getMMBitsWords(MMSize); //for MMSize is words
+			let numOfSets = cacheSize/blocksPerSet;
 
 		//for blocks program flow
 			for(let ctr = 0; ctr < programFlow.length; ctr++){
 				let blockNum = programFlow[ctr];
-				let numOfSets = cacheSize/blocksPerSet;
+				
 
-				let tagBits = getTagBits(blockNum, wordsPerBlock, blocksPerSet, MMbits);
+				let tagBits = getTagBits(blockNum, wordsPerBlock, setBits, MMbits, true); //change true for integration
 				let setNum = getSetNumBlock(blockNum, numOfSets);
 
-				let result = searchSet(tagBits, setNum, cache);	//checks if found
+				let result = searchSet(tagBits, setNum, cache);
 
+
+				
 				if(result == 1){//if cache hit
-					updateFoundBlock(tagBits, setNum, cache);
+					cache = updateFoundBlock(tagBits, setNum, cache);
 				} else {//if cache miss
-					insertMissingBlock(tagBits, setNum, cache);
+					cache = insertMissingBlock(tagBits, setNum, cache);
 				}
 
 			}
+
+			console.log(cache);
+
+			// let blockNum = 0;
+				
+
+			// 	let tagBits = getTagBits(blockNum, wordsPerBlock, setBits, MMbits, true);
+			// 	let setNum = getSetNumBlock(blockNum, numOfSets);
+
+			// 	let result = searchSet(tagBits, setNum, cache);
+
+
+				
+			// 	if(result == 1){//if cache hit
+			// 		cache = updateFoundBlock(tagBits, setNum, cache);
+			// 	} else {//if cache miss
+			// 		cache = insertMissingBlock(tagBits, setNum, cache);
+			// 	}
+
+
+			
+
+
 
 			// cache = [[["123", 1],["001",2],["134",4]],[["646", null],["263",1],["175",null]]];
 			// insertMissingBlock("qwe",1, cache);
@@ -86,6 +113,7 @@
 			let cache = [];
 			let numOfSets = cacheSize/blocksPerSet;
 
+
 			for(let ctr = 0; ctr < numOfSets; ctr++){
 				let set = [];
 
@@ -95,6 +123,7 @@
 
 				cache.push(set);
 			}
+
 
 			return cache;
 		}
@@ -132,12 +161,17 @@
 			}
 
 
+			// console.log("min: " +  min);
+			// console.log("max: " + max);
+
+
 			for(let ctr = 0; ctr < setSize; ctr++){
 				let currentRecency = cache[setNum][ctr][1];
-				if(currentRecency == min){
+				if(currentRecency == min || currentRecency == null){
 					cache[setNum][ctr][0] = tagBits;
 					cache[setNum][ctr][1] = max + 1;
-					return;
+				
+					return cache;
 				}
 			}
 
@@ -164,20 +198,33 @@
 					cache[setNum][ctr][1] = max + 1;
 				}
 			}
+
+			return cache;
 		}
 
 		//gets tag bits of given address or block in program flow
-		//Input: address, words per block, number of set bits, MM bits
+		//Input: address, words per block, number of set bits, MM bits, check if block or word
 		//Output: tag bits in a string
-		function getTagBits(address, wordsPerBlock, setBits, MMbits){
+		function getTagBits(address, wordsPerBlock, setBits, MMbits, check){
 			let binaryAddress = getBinaryAddress(address, MMbits);
 			let blockBits = getBlockBits(wordsPerBlock);
 
+			if(check == true){
+				binaryAddress.splice(0,blockBits);
+			}
+
+
+			// console.log("MM bits: " + MMbits);
+			// console.log("setBits: " + setBits);
+			// console.log("blockBits: " + blockBits);
+
 			let tagLength = MMbits - setBits - blockBits;
 
-			let tagString = binaryAddress.splice(0, tagLength);
-			tagString = tagString.join('');
+			// console.log("tag length: " + tagLength);
 
+			let tagString = binaryAddress.splice(0, tagLength);
+			
+			tagString = tagString.join('');
 
 			return tagString;
 		}
