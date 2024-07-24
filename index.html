@@ -11,25 +11,43 @@
 		$(document).ready(function(){
 			console.log("Hello, world!");
 
-			let MMSize = 1024; //words
-			let cacheSize = 16; //blocks
-			let blocksPerSet = 4; //
-			let programFlow = [0, 1, 2, 3, 4, 5, 6, 7, 8]; //blocks
-			let wordsPerBlock = 4;
+
+
+			let MMSize = 256; //MM SIZE
+			let cacheSize = 16; //CACHE SIZE
+			let blocksPerSet = 4; //SET SIZE
+			let programFlow = [7, 99, 201]; //PROGRAM FLOW
+			let wordsPerBlock = 4; //BLOCK SIZE
+
+			isCacheSizeWord = false;
+			isMMSizeBlock = false;
+			isProgramFlowBlock = false;
+
+			if(isCacheSizeWord == true){
+				cacheSize = cacheSize/wordsPerBlock;
+			}
+
+			if(isMMSizeBlock == true){
+				MMsize = wordsPerBlock * MMSize;
+			}
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
 
 			let setBits = getSetBits(blocksPerSet);
-			let MMbits = getMMBitsWords(MMSize); //for MMSize is words
+			let MMbits = getMMBitsWords(MMSize);
 			let numOfSets = cacheSize/blocksPerSet;
 
-		//for blocks program flow
 			for(let ctr = 0; ctr < programFlow.length; ctr++){
-				let blockNum = programFlow[ctr];
+				let current = programFlow[ctr];
 				
 
-				let tagBits = getTagBits(blockNum, wordsPerBlock, setBits, MMbits, true); //change true for integration
-				let setNum = getSetNumBlock(blockNum, numOfSets);
+				let tagBits = getTagBits(current, wordsPerBlock, setBits, MMbits, isProgramFlowBlock); 
+
+				if(isProgramFlowBlock == true){
+					setNum = getSetNumBlock(current, numOfSets);
+				} else {
+					setNum = getSetNumWord(current, numOfSets, setBits, MMbits);
+				}
 
 				let result = searchSet(tagBits, setNum, cache);
 
