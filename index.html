@@ -71,6 +71,8 @@
 			cacheType = $("select[name='cachetype']").val();
 			programFlow = $("input[name='progflow']").val();
 			programFlowType = $("select[name='progflowtype']").val();
+			wordsPerBlock = blockSize;
+			blocksPerSet = setSize;
 
 			console.log("Block Size: " + blockSize + " words" );
 			console.log("Set Size: " + setSize + " blocks");
@@ -103,6 +105,8 @@
 			} else {
 				isProgramFlowBlock = false;
 			}
+
+			programFlow = programFlowArr;
 			
 		}
 
@@ -120,14 +124,8 @@
 		}
 
 		function simulateCache(){
-			let MMSize = 128; //MM SIZE
-			let cacheSize = 8; //CACHE SIZE
-			let blocksPerSet = 2; //SET SIZE
-			let programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
-			let wordsPerBlock = 8; //BLOCK SIZE
-
-			isCacheSizeWord = false;
-			isMMSizeBlock = false;
+			isCacheSizeWord = true;
+			isMMSizeBlock = true;
 			isProgramFlowBlock = true;
 
 			if(isCacheSizeWord == true){
@@ -139,11 +137,11 @@
 			}
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
-
-			let setBits = getSetBits(blocksPerSet);
+			
 			let MMbits = getMMBitsWords(MMSize);
 			let numOfSets = cacheSize/blocksPerSet;
-
+			let setBits = getSetBits(numOfSets);
+			
 			for(let ctr = 0; ctr < programFlow.length; ctr++){
 				let current = programFlow[ctr];
 				
@@ -163,6 +161,7 @@
 				if(result == 1){//if cache hit
 					cache = updateFoundBlock(tagBits, setNum, cache);
 				} else {//if cache miss
+					
 					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
 				}
 
@@ -177,15 +176,15 @@
 
 
 
-			let MMSize = 256; //MM SIZE
-			let cacheSize = 16; //CACHE SIZE
-			let blocksPerSet = 4; //SET SIZE
-			let programFlow = [7, 99, 201]; //PROGRAM FLOW
-			let wordsPerBlock = 4; //BLOCK SIZE
+			MMSize = 16; //MM SIZE
+			cacheSize = 64; //CACHE SIZE
+			blocksPerSet = 2; //SET SIZE
+			programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
+			wordsPerBlock = 8; //BLOCK SIZE
 
-			isCacheSizeWord = false;
-			isMMSizeBlock = false;
-			isProgramFlowBlock = false;
+			isCacheSizeWord = true;
+			isMMSizeBlock = true;
+			isProgramFlowBlock = true;
 
 			if(isCacheSizeWord == true){
 				cacheSize = cacheSize/wordsPerBlock;
