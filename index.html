@@ -4,7 +4,39 @@
 	<title>Cache Simulator</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script>
+		var blockSize = 0;
+		var setSize = 0;
+		var MMSize = 0;
+		var MMType = "";
+		var cacheSize = 0;
+		var cacheType = "";
+		var programFlow = "";
+		var programFlowType = "";
+
+		//gets user input
+		function getUserInput() {
+			// using jquery to get the value of the input fields
+			blockSize = $("input[name='blocksize']").val();
+			setSize = $("input[name='setsize']").val();
+			MMSize = $("input[name='mmsize']").val();
+			MMType = $("select[name='mmtype']").val();
+			cacheSize = $("input[name='cachesize']").val();
+			cacheType = $("select[name='cachetype']").val();
+			programFlow = $("input[name='progflow']").val();
+			programFlowType = $("select[name='progflowtype']").val();
+
+			console.log(blockSize);
+			console.log(setSize);
+			console.log(MMSize);
+			console.log(MMType);
+			console.log(cacheSize);
+			console.log(cacheType);
+			console.log(programFlow);
+			console.log(programFlowType);
+		}
+
 		function simulate() {
+			getUserInput();
 		
 		}
 
@@ -361,7 +393,7 @@
 			</div>
 			<div class="input-field mm">
 				<label>MM Memory Size</label>
-				<input type="number" name="setsize" min="0"/>
+				<input type="number" name="mmsize" min="0"/>
 				<select name="mmtype">
 					<option value="blocks">Blocks</option>
 					<option value="words">Words</option>
