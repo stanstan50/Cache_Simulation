@@ -11,10 +11,54 @@
 		var cacheSize = 0;
 		var cacheType = "";
 		var programFlow = "";
+		var programFlowArr = null;
 		var programFlowType = "";
+
+		//parses program flow string into array
+		//Input: program flow string
+		//Output: program flow array of String or Number into global variable programFlowArr
+		function parseProgramFlow(programFlow) {
+			//blocks (block number) in decimal
+			if(programFlowType == "blocks") {
+				//remove any non-digit characters before and after the string
+				programFlow = programFlow.replace(/\D+/g, ' ');
+
+				//splits the string into an array of any non-digit characters
+				programFlowArr = programFlow.split(/\D+/);
+
+				//converts the array of strings into an array of numbers
+				programFlowArr = programFlowArr.map(Number);
+			} else { //words (addresses) in hex, considers A-F hex values
+				//remove any non-digit characters before and after the string
+				programFlow = programFlow.replace(/[^0-9A-Fa-f]+/g, ' ');
+
+				//trim
+				programFlow = programFlow.trim();
+
+				//splits the string into an array of any non-hex value characters
+				programFlowArr = programFlow.split(/[^0-9A-Fa-f]+/);
+
+				//converts the array of strings into an array of strings
+				programFlowArr = programFlowArr.map(String);
+
+				//converts each string in array to uppercase
+				programFlowArr = programFlowArr.map(function(x){return x.toUpperCase();});
+			}
+		}
 
 		//gets user input
 		function getUserInput() {
+			//set all global variables to default values
+			blockSize = 0;
+			setSize = 0;
+			MMSize = 0;
+			MMType = "";
+			cacheSize = 0;
+			cacheType = "";
+			programFlow = "";
+			programFlowArr = null;
+			programFlowType = "";
+
 			// using jquery to get the value of the input fields
 			blockSize = $("input[name='blocksize']").val();
 			setSize = $("input[name='setsize']").val();
@@ -25,14 +69,15 @@
 			programFlow = $("input[name='progflow']").val();
 			programFlowType = $("select[name='progflowtype']").val();
 
-			console.log(blockSize);
-			console.log(setSize);
-			console.log(MMSize);
-			console.log(MMType);
-			console.log(cacheSize);
-			console.log(cacheType);
-			console.log(programFlow);
-			console.log(programFlowType);
+			console.log("Block Size: " + blockSize + " words" );
+			console.log("Set Size: " + setSize + " blocks");
+			console.log("MM Memory Size: " + MMSize + " " + MMType);
+			console.log("Cache Memory Size: " + cacheSize + " " + cacheType);
+			console.log("Program Flow: " + programFlow);
+			console.log("program Flow Type: " + programFlowType);
+
+			parseProgramFlow(programFlow);
+			console.log("Program Flow Array: " + programFlowArr);
 		}
 
 		function simulate() {
