@@ -13,6 +13,9 @@
 		var programFlow = "";
 		var programFlowArr = null;
 		var programFlowType = "";
+		var isCacheSizeWord = false;
+		var	isMMSizeBlock = false;
+		var	isProgramFlowBlock = false;
 
 		//parses program flow string into array
 		//Input: program flow string
@@ -78,11 +81,95 @@
 
 			parseProgramFlow(programFlow);
 			console.log("Program Flow Array: " + programFlowArr);
+			if (programFlowType == "words") { //convert strings of hex to array of decimal numbers
+				programFlowArr = programFlowArr.map(function(x){return hexadeciToDeci(x);});
+				console.log("Program Flow Array (Decimal): " + programFlowArr);
+			}
+
+			if (cacheType == "words") {
+				isCacheSizeWord = true;
+			} else {
+				isCacheSizeWord = false;
+			}
+
+			if (MMType == "blocks") {
+				isMMSizeBlock = true;
+			} else {
+				isMMSizeBlock = false;
+			}
+
+			if (programFlowType == "blocks") {
+				isProgramFlowBlock = true;
+			} else {
+				isProgramFlowBlock = false;
+			}
+			
+		}
+
+		//helper function that converts hexadecimals to decimals
+		function hexadeciToDeci(hex) {
+			return parseInt(hex, 16);
 		}
 
 		function simulate() {
+			console.log("=====================");
+			console.log("Simulating...");
+			console.log("=====================");
 			getUserInput();
-		
+			simulateCache();
+		}
+
+		function simulateCache(){
+			let MMSize = 128; //MM SIZE
+			let cacheSize = 8; //CACHE SIZE
+			let blocksPerSet = 2; //SET SIZE
+			let programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
+			let wordsPerBlock = 8; //BLOCK SIZE
+
+			isCacheSizeWord = false;
+			isMMSizeBlock = false;
+			isProgramFlowBlock = true;
+
+			if(isCacheSizeWord == true){
+				cacheSize = cacheSize/wordsPerBlock;
+			}
+
+			if(isMMSizeBlock == true){
+				MMSize = wordsPerBlock * MMSize;
+			}
+
+			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
+
+			let setBits = getSetBits(blocksPerSet);
+			let MMbits = getMMBitsWords(MMSize);
+			let numOfSets = cacheSize/blocksPerSet;
+
+			for(let ctr = 0; ctr < programFlow.length; ctr++){
+				let current = programFlow[ctr];
+				
+
+				let tagBits = getTagBits(current, wordsPerBlock, setBits, MMbits, isProgramFlowBlock); 
+
+				if(isProgramFlowBlock == true){
+					setNum = getSetNumBlock(current, numOfSets);
+				} else {
+					setNum = getSetNumWord(current, numOfSets, setBits, MMbits);
+				}
+
+				let result = searchSet(tagBits, setNum, cache);
+
+
+				
+				if(result == 1){//if cache hit
+					cache = updateFoundBlock(tagBits, setNum, cache);
+				} else {//if cache miss
+					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
+				}
+
+			}
+
+			console.log(cache);
+			
 		}
 
 		$(document).ready(function(){
@@ -90,22 +177,32 @@
 
 
 
-			let MMSize = 256; //MM SIZE
-			let cacheSize = 16; //CACHE SIZE
-			let blocksPerSet = 4; //SET SIZE
-			let programFlow = [7, 99, 201]; //PROGRAM FLOW
-			let wordsPerBlock = 4; //BLOCK SIZE
+			// let MMSize = 256; //MM SIZE
+			// let cacheSize = 16; //CACHE SIZE
+			// let blocksPerSet = 4; //SET SIZE
+			// let programFlow = [7, 99, 201]; //PROGRAM FLOW
+			// let wordsPerBlock = 4; //BLOCK SIZE
+
+			// isCacheSizeWord = false;
+			// isMMSizeBlock = false;
+			// isProgramFlowBlock = false;
+
+			let MMSize = 128; //MM SIZE
+			let cacheSize = 8; //CACHE SIZE
+			let blocksPerSet = 2; //SET SIZE
+			let programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
+			let wordsPerBlock = 8; //BLOCK SIZE
 
 			isCacheSizeWord = false;
 			isMMSizeBlock = false;
-			isProgramFlowBlock = false;
+			isProgramFlowBlock = true;
 
 			if(isCacheSizeWord == true){
 				cacheSize = cacheSize/wordsPerBlock;
 			}
 
 			if(isMMSizeBlock == true){
-				MMsize = wordsPerBlock * MMSize;
+				MMSize = wordsPerBlock * MMSize;
 			}
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
@@ -506,6 +603,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
+			<!--  -->
 			<tr>
 				<td rowspan="2">3</td>
 				<td>1</td>
@@ -515,6 +613,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
+			<!--  -->
 		</table>
 	</div>
 
