@@ -178,27 +178,29 @@
 			let strInfo = "-";
 			let blockData = cacheSnapshot[setNumber][blockNumber];
 			let tagBits = blockData[0];
+			let randomString = "";
 			if (tagBits != null) {
 				tagBits = tagBits.toString();
 				strInfo = `Tag(${tagBits})`;
+				randomString = generateRandomString(12);
 			}
 
 			let actualBlock = blockData[2];
 			if (actualBlock != null) {
-				strInfo += `  B-${actualBlock}`;
+				strInfo += `  B${actualBlock}`;
 			}
 
 			let blockRow = null;
 			if (blockNumber == 0) {
 				blockRow = `
 					<td>${strInfo}</td>
-					<td></td>
+					<td>${randomString}</td>
 			`;
 			} else {
 				blockRow = `
 				<tr>
 					<td>${strInfo}</td>
-					<td></td>
+					<td>${randomString}</td>
 				</tr>
 			`;
 			}
@@ -234,7 +236,15 @@
 			return binary.padStart(bits, '0');
 		}
 
-		
+		function generateRandomString(length) {
+			var result = '';
+			var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+			var charactersLength = characters.length;
+			for (var i = 0; i < length; i++) {
+				result += characters.charAt(Math.floor(Math.random() * charactersLength));
+			}
+			return result;
+		}
 
 		// Function to create the table
 		function createTable() {
@@ -324,7 +334,7 @@
 
 			cacheSnapshot = cache;
 
-			//displayCache();
+			displayCache();
 		});
 
 		//gets cache size in blocks if user inputted words
