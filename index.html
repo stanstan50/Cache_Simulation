@@ -16,6 +16,7 @@
 		var isCacheSizeWord = false;
 		var	isMMSizeBlock = false;
 		var	isProgramFlowBlock = false;
+		var cacheSnapshot = null;
 
 		//parses program flow string into array
 		//Input: program flow string
@@ -121,6 +122,7 @@
 			console.log("=====================");
 			getUserInput();
 			simulateCache();
+			displayCache();
 		}
 
 		function simulateCache(){
@@ -164,7 +166,104 @@
 			}
 
 			console.log(cache);
+			cacheSnapshot = cache;
 			
+		}
+
+		function displayCache() {
+			document.querySelector('.right-side').innerHTML = createTable();
+		}
+
+		function createBlockRow(setNumber, blockNumber) {
+			let strInfo = "-";
+			let blockData = cacheSnapshot[setNumber][blockNumber];
+			let tagBits = blockData[0];
+			if (tagBits != null) {
+				tagBits = tagBits.toString();
+				strInfo = `Tag(${tagBits})`;
+			}
+
+			let actualBlock = blockData[2];
+			if (actualBlock != null) {
+				strInfo += `  B-${actualBlock}`;
+			}
+
+			let blockRow = null;
+			if (blockNumber == 0) {
+				blockRow = `
+					<td>${strInfo}</td>
+					<td></td>
+			`;
+			} else {
+				blockRow = `
+				<tr>
+					<td>${strInfo}</td>
+					<td></td>
+				</tr>
+			`;
+			}
+			
+
+			return blockRow;
+		}
+
+		//displays the snapshot on the table
+		// Function to create a table row
+		function createSetRow(setNumber, setBits) {
+			let setBin = decimalToBinary(setNumber, setBits);
+			let localSetSize = cacheSnapshot[setNumber].length;
+			let setRow = `
+				<tr>
+					<td rowspan="${localSetSize}">${setNumber} (${setBin})</td>
+			`;
+
+			let setData = cacheSnapshot[setNumber];
+
+			for (let blockNumber = 0; blockNumber < setData.length; blockNumber++) {
+				setRow += createBlockRow(setNumber, blockNumber);
+			}
+
+			setRow += '</tr>'
+
+			return setRow;
+		}
+		
+		function decimalToBinary(N, bits) {
+			console.log('number of bits: ' + bits);
+			let binary = (N >>> 0).toString(2);
+			return binary.padStart(bits, '0');
+		}
+
+		
+
+		// Function to create the table
+		function createTable() {
+			let table = `
+				<table>
+					<tr>
+						<th>Set</th>
+						<th>Block</th>
+						<th>Data</th>
+					</tr>
+			`;
+
+			//display cache start
+
+			let setBits = getSetBits((cacheSnapshot.length));
+			// Add rows to the table
+			for (let setNumber = 0; setNumber < cacheSnapshot.length; setNumber++) {
+				table += createSetRow(setNumber, 2);
+			}
+
+			//display cache end
+
+			table += '</table>';
+
+			return table;
+		}
+
+		function numBitsDec(value) {
+			return Math.log2(value);
 		}
 
 		$(document).ready(function(){
@@ -172,15 +271,15 @@
 
 
 
-			MMSize = 16; //MM SIZE
-			cacheSize = 64; //CACHE SIZE
-			blocksPerSet = 2; //SET SIZE
-			programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
-			wordsPerBlock = 8; //BLOCK SIZE
+			MMSize = 256; //MM SIZE
+			cacheSize = 16; //CACHE SIZE
+			blocksPerSet = 4; //SET SIZE
+			programFlow = [7, 99, 201]; //PROGRAM FLOW
+			wordsPerBlock = 4; //BLOCK SIZE
 
-			isCacheSizeWord = true;
-			isMMSizeBlock = true;
-			isProgramFlowBlock = true;
+			isCacheSizeWord = false;
+			isMMSizeBlock = false;
+			isProgramFlowBlock = false;
 
 			if(isCacheSizeWord == true){
 				cacheSize = cacheSize/wordsPerBlock;
@@ -223,6 +322,9 @@
 
 			console.log(cache);
 
+			cacheSnapshot = cache;
+
+			//displayCache();
 		});
 
 		//gets cache size in blocks if user inputted words
@@ -570,6 +672,15 @@
 				<th>Data</th>
 			<tr>
 			<tr>
+				<td rowspan="2">0</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			<tr>
 				<td rowspan="2">1</td>
 				<td>1</td>
 				<td></td>
@@ -578,6 +689,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
+			<!--  -->
 			<tr>
 				<td rowspan="2">2</td>
 				<td>1</td>
@@ -587,6 +699,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
+			<!--  -->
 			<!--  -->
 			<tr>
 				<td rowspan="2">3</td>
