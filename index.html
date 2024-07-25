@@ -259,10 +259,10 @@
 
 			//display cache start
 
-			let setBits = getSetBits((cacheSnapshot.length));
+			let setBits = numBitsDec(cacheSnapshot.length);
 			// Add rows to the table
 			for (let setNumber = 0; setNumber < cacheSnapshot.length; setNumber++) {
-				table += createSetRow(setNumber, 2);
+				table += createSetRow(setNumber, setBits);
 			}
 
 			//display cache end
@@ -334,7 +334,7 @@
 
 			cacheSnapshot = cache;
 
-			displayCache();
+			//displayCache();
 		});
 
 		//gets cache size in blocks if user inputted words
