@@ -177,25 +177,15 @@
 
 
 
-			// let MMSize = 256; //MM SIZE
-			// let cacheSize = 16; //CACHE SIZE
-			// let blocksPerSet = 4; //SET SIZE
-			// let programFlow = [7, 99, 201]; //PROGRAM FLOW
-			// let wordsPerBlock = 4; //BLOCK SIZE
-
-			// isCacheSizeWord = false;
-			// isMMSizeBlock = false;
-			// isProgramFlowBlock = false;
-
-			let MMSize = 128; //MM SIZE
-			let cacheSize = 8; //CACHE SIZE
-			let blocksPerSet = 2; //SET SIZE
-			let programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
-			let wordsPerBlock = 8; //BLOCK SIZE
+			let MMSize = 256; //MM SIZE
+			let cacheSize = 16; //CACHE SIZE
+			let blocksPerSet = 4; //SET SIZE
+			let programFlow = [7, 99, 201]; //PROGRAM FLOW
+			let wordsPerBlock = 4; //BLOCK SIZE
 
 			isCacheSizeWord = false;
 			isMMSizeBlock = false;
-			isProgramFlowBlock = true;
+			isProgramFlowBlock = false;
 
 			if(isCacheSizeWord == true){
 				cacheSize = cacheSize/wordsPerBlock;
@@ -206,11 +196,11 @@
 			}
 
 			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
-
-			let setBits = getSetBits(blocksPerSet);
+			
 			let MMbits = getMMBitsWords(MMSize);
 			let numOfSets = cacheSize/blocksPerSet;
-
+			let setBits = getSetBits(numOfSets);
+			
 			for(let ctr = 0; ctr < programFlow.length; ctr++){
 				let current = programFlow[ctr];
 				
@@ -230,6 +220,7 @@
 				if(result == 1){//if cache hit
 					cache = updateFoundBlock(tagBits, setNum, cache);
 				} else {//if cache miss
+					
 					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
 				}
 
@@ -332,7 +323,6 @@
 				if(currentRecency == min || currentRecency == null){
 					cache[setNum][ctr][0] = tagBits;
 					cache[setNum][ctr][1] = max + 1;
-
 					cache[setNum][ctr][2] = convertTagToBlock(tagBits, setNum, setBits);
 				
 					return cache;
@@ -383,7 +373,6 @@
 		function getTagBits(address, wordsPerBlock, setBits, MMbits, check){
 			let binaryAddress = getBinaryAddress(address, MMbits);
 			let blockBits = getBlockBits(wordsPerBlock);
-
 			if(check == true){
 				binaryAddress.splice(0,blockBits);
 			}
