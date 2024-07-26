@@ -31,6 +31,9 @@ var blockSize = 0;
 				//remove any non-digit characters before and after the string
 				programFlow = programFlow.replace(/\D+/g, ' ');
 
+				//trim
+				programFlow = programFlow.trim();
+
 				//splits the string into an array of any non-digit characters
 				programFlowArr = programFlow.split(/\D+/);
 

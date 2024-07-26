@@ -1,0 +1,205 @@
+
+<html>
+<head>
+	<title>Cache Simulator</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="main.js"></script>
+	<script>
+		$(document).ready(function(){
+			console.log("Hello, world!");
+
+
+
+			MMSize = 128; //MM SIZE
+			cacheSize = 8; //CACHE SIZE
+			blocksPerSet = 2; //SET SIZE
+			programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
+			wordsPerBlock = 8; //BLOCK SIZE
+
+			isCacheSizeWord = false;
+			isMMSizeBlock = false;
+			isProgramFlowBlock = false;
+
+			if(isCacheSizeWord == true){
+				cacheSize = cacheSize/wordsPerBlock;
+			}
+
+			if(isMMSizeBlock == true){
+				MMSize = wordsPerBlock * MMSize;
+			}
+
+			let cache = initializeCacheMemory(cacheSize, blocksPerSet);
+			
+			let MMbits = getMMBitsWords(MMSize);
+			let numOfSets = cacheSize/blocksPerSet;
+			let setBits = getSetBits(numOfSets);
+			
+			for(let ctr = 0; ctr < programFlow.length; ctr++){
+				let current = programFlow[ctr];
+				
+
+				let tagBits = getTagBits(current, wordsPerBlock, setBits, MMbits, isProgramFlowBlock); 
+
+				if(isProgramFlowBlock == true){
+					setNum = getSetNumBlock(current, numOfSets);
+				} else {
+					setNum = getSetNumWord(current, numOfSets, setBits, MMbits);
+				}
+
+				let result = searchSet(tagBits, setNum, cache);
+
+
+				
+				if(result == 1){//if cache hit
+					cache = updateFoundBlock(tagBits, setNum, cache);
+					hitCount++;	//increment hit count
+				} else {//if cache miss
+					
+					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
+					missCount++; //increment miss count
+				}
+
+			}
+
+			console.log(cache);
+
+			cacheSnapshot = cache;
+
+			// displayCache();
+			// displayResults();
+		});
+
+	</script>
+	<link rel="stylesheet" type="text/css" href="layout.css">
+</head>
+<body>
+	<div class="body-parent">
+	<div class="left-side">
+		<div class="header-icon">
+			<img src="cachew.png" alt="icon">
+		</div>
+		<div class="header-title">
+			<h1>CACHE SIMULATOR</h1>
+			<h2>Block Set Associative, Least Recently Used</h2>
+			<hr>
+		</div>
+		<div class="input-area">
+			<div class="input-field cachetime">
+				<label>Cache Access Time</label>
+				<input type="number" name="cacheAccessTime" min="0" value="1"/>
+			</div>
+			<div class="input-field mmtime">
+				<label>Main Memory Access Time</label>
+				<input type="number" name="mmAccessTime" min="0" value="10"/>
+			</div>
+			<div class="input-field block">
+				<label>Block Size</label>
+				<input type="number" name="blocksize" min="0"/>
+			</div>
+			<div class="input-field set">
+				<label>Set Size</label>
+				<input type="number" name="setsize" min="0"/>
+			</div>
+			<div class="input-field mm">
+				<label>MM Memory Size</label>
+				<input type="number" name="mmsize" min="0"/>
+				<select name="mmtype">
+					<option value="blocks">Blocks</option>
+					<option value="words">Words</option>
+				</select>
+			</div>
+			<div class="input-field cm">
+				<label>Cache Memory Size</label>
+				<input type="number" name="cachesize" min="0"/>
+				<select name="cachetype">
+					<option value="blocks">Blocks</option>
+					<option value="words">Words</option>
+				</select>
+			</div>
+			<div class="input-field progflow">
+				<label>Program Flow</label>
+				<input type="text" name="progflow"/>
+				<select name="progflowtype">
+					<option value="blocks">Blocks</option>
+					<option value="words">Words</option>
+				</select>
+			</div>	
+		</div>
+		<div class="submitinput">
+			<input type="submit" value="Simulate" onclick="simulate()"/>
+		</div>
+		<hr>
+		<div class="simulresults">
+			<div class="simulresults-header">
+				<h1>SIMULATION RESULTS</h1>
+			</div>
+			<div class="simulresults-field">
+				<p>
+				Number of Cache Hits: <br>
+				Number of Cache Miss: <br>
+				Miss Penalty: <br>
+				Average Memory Access Time: <br>
+				Total Memory Access Time: <br>
+				</p>
+				
+			</div>
+			<div class="submitexport" style="display:none" id="exportres">
+				<input type="submit" value="Export As Text File" onclick="exportResults()"/>
+			</div>
+		</div>
+	</div>
+	<div class="right-side">
+		<table>
+			<tr>
+				<th rowspan="2">Set</th>
+				<th colspan="2">Block</th>
+				<th rowspan="2">Data</th>
+			</tr>
+			<tr>
+				<th class="tagcol">Tag</th>
+				<th>Block</th>
+			</tr>
+			<!-- <tr>
+				<td rowspan="2">0</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td rowspan="2">1</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+		
+			<tr>
+				<td rowspan="2">2</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td rowspan="2">3</td>
+				<td>1</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td></td>
+			</tr>
+			 -->
+		</table>
+	</div>
+
+
+</body>
+</html>

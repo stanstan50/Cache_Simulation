@@ -1,8 +1,7 @@
 function add(server){
     server.get('/', function(req, resp){
-    
-        resp.render('main',{
-            layout: 'index',
+        resp.render('index',{
+            layout: 'indexLayout',
             title: 'Block-set Associative Cache Simulator',
         });
     });
