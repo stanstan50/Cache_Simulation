@@ -12,3 +12,12 @@ Cache Memory Size = Total blocks/words in cache memory
 Program Flow = String of comma-separated blocks (positive integers) or words(use hex) to be stored in the cache in series
 - Block example: 1, 2, 3, 4, 5
 - Word example: A109, B2, C31, D4F, E500 
+
+## Restrictions:
+- Inputs must be a power of 2 with the exception of Cache Access Time, Main Memory Access Time, and Program Flow
+- Inputs must be greater than 0 with the exception of Program Flow
+- Cache Memory Size (blocks) mod Set Size = 0
+- Cache Memory Size (words) mod Block Size = 0
+- MM Memory Size >= Cache Memory Size 
+- Each address/block in program flow must not be greater than the max MM Memory Size
+- Should unrelated characters be inputted into Program Flow, they will be treated as commas/separation indicators
