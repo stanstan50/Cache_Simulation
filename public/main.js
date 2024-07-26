@@ -55,6 +55,7 @@ var blockSize = 0;
 				//converts each string in array to uppercase
 				programFlowArr = programFlowArr.map(function(x){return x.toUpperCase();});
 			}
+			return programFlowArr;
 		}
 
 		//gets user input
