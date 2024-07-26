@@ -17,6 +17,16 @@
 		var	isMMSizeBlock = false;
 		var	isProgramFlowBlock = false;
 		var cacheSnapshot = null;
+		var missCount = 0;
+		var hitCount = 0;
+		var totalCount = 0;
+		var cacheAccessTime = 1;
+		var MMAccessTime = 10;
+		var missPenalty = 0;
+		var averageMemoryAccessTime = 0;
+		var totalMemoryAccessTime = 0;
+		var originalCache = null;
+		var originalMM = null;
 
 		//parses program flow string into array
 		//Input: program flow string
@@ -62,6 +72,14 @@
 			programFlow = "";
 			programFlowArr = null;
 			programFlowType = "";
+			hitCount = 0;
+			missCount = 0;
+			totalCount = 0;
+			cacheAccessTime = 1;
+			MMAccessTime = 10;
+			originalCache = null;
+			originalMM = null;
+
 
 			// using jquery to get the value of the input fields
 			blockSize = $("input[name='blocksize']").val();
@@ -72,8 +90,12 @@
 			cacheType = $("select[name='cachetype']").val();
 			programFlow = $("input[name='progflow']").val();
 			programFlowType = $("select[name='progflowtype']").val();
+			cacheAccessTime = parseFloat($("input[name='cacheAccessTime']").val());
+			MMAccessTime = parseFloat($("input[name='mmAccessTime']").val());
 			wordsPerBlock = blockSize;
 			blocksPerSet = setSize;
+			originalCache = cacheSize;
+			originalMM = MMSize;
 
 			console.log("Block Size: " + blockSize + " words" );
 			console.log("Set Size: " + setSize + " blocks");
@@ -85,8 +107,8 @@
 			parseProgramFlow(programFlow);
 			console.log("Program Flow Array: " + programFlowArr);
 			if (programFlowType == "words") { //convert strings of hex to array of decimal numbers
-				programFlowArr = programFlowArr.map(function(x){return hexadeciToDeci(x);});
-				console.log("Program Flow Array (Decimal): " + programFlowArr);
+				programFlow = programFlowArr.map(function(x){return hexadeciToDeci(x);});
+				console.log("Program Flow Array (Decimal): " + programFlow);
 			}
 
 			if (cacheType == "words") {
@@ -107,7 +129,7 @@
 				isProgramFlowBlock = false;
 			}
 
-			programFlow = programFlowArr;
+			programFlow = programFlow;
 			
 		}
 
@@ -123,6 +145,7 @@
 			getUserInput();
 			simulateCache();
 			displayCache();
+			displayResults();
 		}
 
 		function simulateCache(){
@@ -158,9 +181,11 @@
 				
 				if(result == 1){//if cache hit
 					cache = updateFoundBlock(tagBits, setNum, cache);
+					hitCount++;	//increment hit count
 				} else {//if cache miss
 					
 					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
+					missCount++; //increment miss count
 				}
 
 			}
@@ -168,6 +193,51 @@
 			console.log(cache);
 			cacheSnapshot = cache;
 			
+		}
+
+		
+
+		function displayResults() {	// calculations in nanoseconds
+			totalCount = hitCount + missCount;
+			missPenalty = cacheAccessTime + blockSize * MMAccessTime + cacheAccessTime;	// 1 cache check + blockSize * memory access + 1 cache read
+			averageMemoryAccessTime = (hitCount/totalCount) * cacheAccessTime + (missCount/totalCount) * missPenalty;	// hits/total * cacheAccessTime + misses/total * missPenalty
+			//totalMemoryAccessTime = (hitCount * blockSize * cacheAccessTime) + (missCount * blockSize * (MMAccessTime + cacheAccessTime)) + (missCount * cacheAccessTime); 
+			totalMemoryAccessTime = (hitCount * blockSize * cacheAccessTime) + (missCount * blockSize * (MMAccessTime + cacheAccessTime)) + (missCount * cacheAccessTime); 
+
+
+			
+			//fix to 2 decimal places
+			averageMemoryAccessTime = averageMemoryAccessTime.toFixed(2);
+			totalMemoryAccessTime = totalMemoryAccessTime.toFixed(2);
+			missPenalty = missPenalty;
+
+			document.querySelector('.simulresults-field').innerHTML = `
+				<p>
+				Number of Cache Hits: ${hitCount} <br>
+				Number of Cache Miss: ${missCount} <br>
+				Miss Penalty: ${missPenalty} <br>
+				Average Memory Access Time: ${averageMemoryAccessTime} <br>
+				Total Memory Access Time: ${totalMemoryAccessTime} <br>
+				</p>
+			`;
+
+			document.getElementById('exportres').style.display = 'block';
+		}
+
+		function exportResults() {
+			//store to .txt file (includes both input and output)
+			let text = `Results:\nNumber of Cache Hits: ${hitCount} \nNumber of Cache Miss: ${missCount} \nMiss Penalty: ${missPenalty} \nAverage Memory Access Time: ${averageMemoryAccessTime} \nTotal Memory Access Time: ${totalMemoryAccessTime} \n\nInput:\nCache Access Time: ${cacheAccessTime}\nMain Memory Access Time: ${MMAccessTime}\nBlock Size: ${blockSize} words \nSet Size: ${setSize} blocks \nMM Memory Size: ${originalMM} ${MMType} \nCache Memory Size: ${originalCache} ${cacheType} \nProgram Flow: ${programFlowArr} \nProgram Flow Type: ${programFlowType}`;
+			let filename = "cacheSim_BSA_LRU-results.txt";
+			let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+			saveAs(blob, filename);
+		}
+
+		function saveAs(blob, filename) {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = filename;
+			a.click();
 		}
 
 		function displayCache() {
@@ -181,7 +251,7 @@
 			let randomString = "";
 			if (tagBits != null) {
 				tagBits = tagBits.toString();
-				strInfo = `Tag(${tagBits})`;
+				strInfo = `T(${tagBits})`;
 				randomString = generateRandomString(12);
 			}
 
@@ -281,11 +351,11 @@
 
 
 
-			MMSize = 256; //MM SIZE
-			cacheSize = 16; //CACHE SIZE
-			blocksPerSet = 4; //SET SIZE
-			programFlow = [7, 99, 201]; //PROGRAM FLOW
-			wordsPerBlock = 4; //BLOCK SIZE
+			MMSize = 128; //MM SIZE
+			cacheSize = 8; //CACHE SIZE
+			blocksPerSet = 2; //SET SIZE
+			programFlow = [3, 7, 12, 10, 12, 11]; //PROGRAM FLOW
+			wordsPerBlock = 8; //BLOCK SIZE
 
 			isCacheSizeWord = false;
 			isMMSizeBlock = false;
@@ -323,9 +393,11 @@
 				
 				if(result == 1){//if cache hit
 					cache = updateFoundBlock(tagBits, setNum, cache);
+					hitCount++;	//increment hit count
 				} else {//if cache miss
 					
 					cache = insertMissingBlock(tagBits, setNum, cache, setBits);
+					missCount++; //increment miss count
 				}
 
 			}
@@ -334,7 +406,8 @@
 
 			cacheSnapshot = cache;
 
-			//displayCache();
+			// displayCache();
+			// displayResults();
 		});
 
 		//gets cache size in blocks if user inputted words
@@ -621,6 +694,14 @@
 			<hr>
 		</div>
 		<div class="input-area">
+			<div class="input-field cachetime">
+				<label>Cache Access Time</label>
+				<input type="number" name="cacheAccessTime" min="0" value="1"/>
+			</div>
+			<div class="input-field mmtime">
+				<label>Main Memory Access Time</label>
+				<input type="number" name="mmAccessTime" min="0" value="10"/>
+			</div>
 			<div class="input-field block">
 				<label>Block Size</label>
 				<input type="number" name="blocksize" min="0"/>
@@ -672,6 +753,9 @@
 				</p>
 				
 			</div>
+			<div class="submitexport" style="display:none" id="exportres">
+				<input type="submit" value="Export As Text File" onclick="exportResults()"/>
+			</div>
 		</div>
 	</div>
 	<div class="right-side">
@@ -681,7 +765,7 @@
 				<th>Block</th>
 				<th>Data</th>
 			<tr>
-			<tr>
+			<!-- <tr>
 				<td rowspan="2">0</td>
 				<td>1</td>
 				<td></td>
@@ -699,7 +783,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
-			<!--  -->
+		
 			<tr>
 				<td rowspan="2">2</td>
 				<td>1</td>
@@ -709,8 +793,6 @@
 				<td>2</td>
 				<td></td>
 			</tr>
-			<!--  -->
-			<!--  -->
 			<tr>
 				<td rowspan="2">3</td>
 				<td>1</td>
@@ -720,7 +802,7 @@
 				<td>2</td>
 				<td></td>
 			</tr>
-			<!--  -->
+			 -->
 		</table>
 	</div>
 

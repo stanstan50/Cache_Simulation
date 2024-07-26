@@ -87,6 +87,13 @@ body {
 			padding-right: 70px;
 		}
 		
+		.cachetime > label{
+			padding-right: 10px;
+		}
+
+		.mmtime > label{
+			padding-right: 10px;
+		}
 		
 		.set > label{
 			padding-right: 86px;
@@ -119,6 +126,23 @@ body {
 		
 		option{
 			font-family: bahnschrift;
+		}
+
+		.submitexport{
+			margin-top: 10px;
+			display: flex;
+			margin-left: 100px;
+			margin-right: 100px;
+			align-items: center;
+		}
+
+		.submitexport > input{
+			height: 35px;
+			width: 100%;
+			background-color: green;
+			border-color: green;
+			color: white;
+			margin-bottom: 15px;
 		}
 		
 		.submitinput{
