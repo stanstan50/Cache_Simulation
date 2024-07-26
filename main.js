@@ -241,31 +241,37 @@ var blockSize = 0;
 		}
 
 		function createBlockRow(setNumber, blockNumber) {
-			let strInfo = "-";
+			// let strInfo = "-";
 			let blockData = cacheSnapshot[setNumber][blockNumber];
 			let tagBits = blockData[0];
 			let randomString = "";
 			if (tagBits != null) {
-				tagBits = tagBits.toString();
-				strInfo = `[${tagBits}]`;
+				tagBits = "[" + tagBits.toString() + "]";
+				// strInfo = `[${tagBits}]`;
 				randomString = generateRandomString(12);
+			} else {
+				tagBits = "-";
 			}
 
 			let actualBlock = blockData[2];
 			if (actualBlock != null) {
-				strInfo += `  ${actualBlock}`;
+				// strInfo += `  ${actualBlock}`;
+			} else {
+				actualBlock = "-";
 			}
 
 			let blockRow = null;
 			if (blockNumber == 0) {
 				blockRow = `
-					<td>${strInfo}</td>
+					<td>${tagBits}</td>
+					<td>${actualBlock}</td>
 					<td>${randomString}</td>
 			`;
 			} else {
 				blockRow = `
 				<tr>
-					<td>${strInfo}</td>
+					<td>${tagBits}</td>
+					<td>${actualBlock}</td>
 					<td>${randomString}</td>
 				</tr>
 			`;
@@ -317,9 +323,13 @@ var blockSize = 0;
 			let table = `
 				<table>
 					<tr>
-						<th>Set</th>
+						<th rowspan="2">Set</th>
+						<th colspan="2">Block</th>
+						<th rowspan="2">Data</th>
+					</tr>
+					<tr>
+						<th class="tagcol">Tag</th>
 						<th>Block</th>
-						<th>Data</th>
 					</tr>
 			`;
 
