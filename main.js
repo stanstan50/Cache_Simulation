@@ -247,13 +247,13 @@ var blockSize = 0;
 			let randomString = "";
 			if (tagBits != null) {
 				tagBits = tagBits.toString();
-				strInfo = `T(${tagBits})`;
+				strInfo = `[${tagBits}]`;
 				randomString = generateRandomString(12);
 			}
 
 			let actualBlock = blockData[2];
 			if (actualBlock != null) {
-				strInfo += `  B${actualBlock}`;
+				strInfo += `  ${actualBlock}`;
 			}
 
 			let blockRow = null;
