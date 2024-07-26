@@ -109,6 +109,8 @@
 			if (programFlowType == "words") { //convert strings of hex to array of decimal numbers
 				programFlow = programFlowArr.map(function(x){return hexadeciToDeci(x);});
 				console.log("Program Flow Array (Decimal): " + programFlow);
+			} else {
+				programFlow = programFlowArr;
 			}
 
 			if (cacheType == "words") {
@@ -129,7 +131,7 @@
 				isProgramFlowBlock = false;
 			}
 
-			programFlow = programFlow;
+			
 			
 		}
 
