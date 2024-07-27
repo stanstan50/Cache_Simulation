@@ -9,7 +9,7 @@ MM Memory Size = Total blocks/words in main memory
 
 Cache Memory Size = Total blocks/words in cache memory
 
-Program Flow = String of space-separated blocks (positive integers) or words(use hex) to be stored in the cache in series
+Program Flow = String of space-separated blocks (integers) or words (hex) to be stored in the cache in series
 - Block example: 1, 2, 3, 4, 5
 - Word example: A109, B2, C31, D4F, E500 
 
